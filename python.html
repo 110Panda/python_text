@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>251人工智能班Python在线学习</title>
+    <!-- 引入 Skulpt 库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/1.2.0/skulpt.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/1.2.0/skulpt-stdlib.min.js"></script>
     <style>
         body { font-family: "Microsoft YaHei"; background: #f5f5f5; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
         h2 { color: #ff0000; text-align: center; }
         textarea { width: 100%; height: 200px; font-size: 16px; padding: 10px; margin: 10px 0; }
         button { padding: 8px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        #output { background: #222; color: white; padding: 15px; border-radius: 5px; min-height: 60px; margin-top: 10px; font-family: monospace; }
+        #output { background: #222; color: white; padding: 15px; border-radius: 5px; min-height: 60px; margin-top: 10px; font-family: monospace; white-space: pre-wrap; }
     </style>
 </head>
 <body>
@@ -18,31 +21,36 @@
         <h2>251人工智能班Python 在线学习</h2>
         <textarea id="code">print("Hello Python")
 print("    Hello word!")</textarea>
-        <button onclick="runCode()">运行代码</button>
+        <button onclick="runPython()">运行代码</button>
         <h3 style="color:red">运行结果：</h3>
         <div id="output"></div>
     </div>
 
-    <!-- 引入最简单的 Python 运行库 -->
-    <script src="https://cdn.jsdelivr.net/npm/brython@3.12.1/brython.min.js"></script>
     <script>
-        // 初始化 Brython
-        window.onload = function() {
-            brython();
-        };
+        // 配置 Skulpt
+        Sk.configure({
+            output: function(text) {
+                document.getElementById("output").textContent += text;
+            },
+            read: function(filename) {
+                if (Sk.builtinFiles.files[filename]) {
+                    return Sk.builtinFiles.files[filename];
+                }
+                throw "File not found: " + filename;
+            }
+        });
 
-        // 运行代码函数
-        function runCode() {
+        // 运行 Python 代码
+        function runPython() {
             const code = document.getElementById("code").value;
             const output = document.getElementById("output");
-            output.innerHTML = ""; // 清空
-            
+            output.textContent = ""; // 清空之前的输出
             try {
-                // 用 Brython 执行 Python 代码
-                const runner = Brython();
-                runner.runPython(code, output);
+                Sk.misceval.asyncToPromise(function() {
+                    return Sk.importMainWithBody("<stdin>", false, code, true);
+                });
             } catch (e) {
-                output.textContent = "错误：" + e.message;
+                output.textContent = "错误：" + e.toString();
             }
         }
     </script>
